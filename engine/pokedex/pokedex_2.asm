@@ -65,15 +65,15 @@ DoDexSearchSlowpokeFrame:
 	jr .loop
 
 .SlowpokeSpriteData:
-	dbsprite  9, 11, 0, 0, $00, 0
-	dbsprite 10, 11, 0, 0, $01, 0
-	dbsprite 11, 11, 0, 0, $02, 0
-	dbsprite  9, 12, 0, 0, $10, 0
-	dbsprite 10, 12, 0, 0, $11, 0
-	dbsprite 11, 12, 0, 0, $12, 0
-	dbsprite  9, 13, 0, 0, $20, 0
-	dbsprite 10, 13, 0, 0, $21, 0
-	dbsprite 11, 13, 0, 0, $22, 0
+	dbsprite 11, 0,  9, 0, $00, 0
+	dbsprite 11, 0, 10, 0, $01, 0
+	dbsprite 11, 0, 11, 0, $02, 0
+	dbsprite 12, 0,  9, 0, $10, 0
+	dbsprite 12, 0, 10, 0, $11, 0
+	dbsprite 12, 0, 11, 0, $12, 0
+	dbsprite 13, 0,  9, 0, $20, 0
+	dbsprite 13, 0, 10, 0, $21, 0
+	dbsprite 13, 0, 11, 0, $22, 0
 	db -1
 
 DisplayDexEntry:
@@ -123,7 +123,7 @@ DisplayDexEntry:
 	ld d, h
 	ld e, l
 	hlcoord 13, 7
-	lb bc, 1, (2 << 4) | 4
+	lb bc, 1, (2 << 4) | 3
 	call PrintNum
 	pop af
 	pop hl
