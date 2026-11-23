@@ -2151,41 +2151,9 @@ UpdateBattleStateAndExperienceAfterEnemyFaint:
 	ld a, [wBattleResult]
 	and BATTLERESULT_BITMASK
 	ld [wBattleResult], a ; WIN
-	call IsAnyMonHoldingExpShare
-	jr z, .skip_exp
-	ld hl, wEnemyMonBaseStats
-	ld b, wEnemyMonEnd - wEnemyMonBaseStats
-.loop
-	srl [hl]
-	inc hl
-	dec b
-	jr nz, .loop
-
-.skip_exp
-	ld hl, wEnemyMonBaseStats
-	ld de, wBackupEnemyMonBaseStats
-	ld bc, wEnemyMonEnd - wEnemyMonBaseStats
-	call CopyBytes
 	xor a
 	ld [wGivingExperienceToExpShareHolders], a
-	call GiveExperiencePoints
-	call IsAnyMonHoldingExpShare
-	ret z
-
-	ld a, [wBattleParticipantsNotFainted]
-	push af
-	ld a, d
-	ld [wBattleParticipantsNotFainted], a
-	ld hl, wBackupEnemyMonBaseStats
-	ld de, wEnemyMonBaseStats
-	ld bc, wEnemyMonEnd - wEnemyMonBaseStats
-	call CopyBytes
-	ld a, $1
-	ld [wGivingExperienceToExpShareHolders], a
-	call GiveExperiencePoints
-	pop af
-	ld [wBattleParticipantsNotFainted], a
-	ret
+	jp GiveExperiencePoints
 
 IsAnyMonHoldingExpShare:
 	ld a, [wPartyCount]
@@ -6985,7 +6953,6 @@ GiveExperiencePoints:
 	bit IN_BATTLE_TOWER_BATTLE_F, a
 	ret nz
 
-	call .EvenlyDivideExpAmongParticipants
 	xor a
 	ld [wCurPartyMon], a
 	ld bc, wPartyMon1Species
@@ -6996,18 +6963,6 @@ GiveExperiencePoints:
 	ld a, [hli]
 	or [hl]
 	jp z, .next_mon ; fainted
-
-	push bc
-	ld hl, wBattleParticipantsNotFainted
-	ld a, [wCurPartyMon]
-	ld c, a
-	ld b, CHECK_FLAG
-	ld d, 0
-	predef SmallFarFlagAction
-	ld a, c
-	and a
-	pop bc
-	jp z, .next_mon
 
 ; give stat exp
 	ld hl, MON_STAT_EXP + 1
@@ -7105,6 +7060,20 @@ GiveExperiencePoints:
 	ld a, [hl]
 	cp LUCKY_EGG
 	call z, BoostExp
+
+; Double experience (x2)
+	ldh a, [hQuotient + 3]
+	add a
+	ldh [hQuotient + 3], a
+	ldh a, [hQuotient + 2]
+	adc a
+	ldh [hQuotient + 2], a
+	jr nc, .no_x2_overflow
+	ld a, $ff
+	ldh [hQuotient + 2], a
+	ldh [hQuotient + 3], a
+.no_x2_overflow
+
 	ldh a, [hQuotient + 3]
 	ld [wStringBuffer2 + 1], a
 	ldh a, [hQuotient + 2]
